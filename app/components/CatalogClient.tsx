@@ -6,16 +6,17 @@ import { categories, divisions, products } from "@/lib/data";
 import { ProductCard } from "./ProductCard";
 import { Reveal } from "./Reveal";
 
-export function CatalogClient({ initialQuery = "", initialCategory = "", initialRegion = "" }: {
+export function CatalogClient({ initialQuery = "", initialCategory = "", initialRegion = "", initialTrace = false }: {
   initialQuery?: string;
   initialCategory?: string;
   initialRegion?: string;
+  initialTrace?: boolean;
 }) {
   const [query, setQuery] = useState(initialQuery);
   const [category, setCategory] = useState(initialCategory);
   const [region, setRegion] = useState(initialRegion);
   const [sort, setSort] = useState("featured");
-  const [traceOnly, setTraceOnly] = useState(false);
+  const [traceOnly, setTraceOnly] = useState(initialTrace);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   const filtered = useMemo(() => {

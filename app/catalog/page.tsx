@@ -7,5 +7,5 @@ export const metadata: Metadata = { title: "দেশি বাজার", descr
 export default async function CatalogPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const params = await searchParams;
   const text = (key: string) => typeof params[key] === "string" ? params[key] as string : "";
-  return <AppShell><CatalogClient initialQuery={text("q")} initialCategory={text("category")} initialRegion={text("region")} /></AppShell>;
+  return <AppShell><CatalogClient initialQuery={text("q")} initialCategory={text("category")} initialRegion={text("region")} initialTrace={text("trace") === "1"} /></AppShell>;
 }
