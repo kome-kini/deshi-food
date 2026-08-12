@@ -9,7 +9,7 @@ import type { Product } from "@/lib/data";
 import { formatBDT } from "@/lib/data";
 import { useCart } from "./CartProvider";
 
-export function ProductCard({ product, priority = false }: { product: Product; priority?: boolean }) {
+export function ProductCard({ product, priority = false, compact = false }: { product: Product; priority?: boolean; compact?: boolean }) {
   const { add } = useCart();
   const reduceMotion = useReducedMotion();
   const [saved, setSaved] = useState(() => typeof window !== "undefined" && (JSON.parse(window.localStorage.getItem("deshijaat-wishlist") || "[]") as string[]).includes(product.slug));
@@ -28,7 +28,7 @@ export function ProductCard({ product, priority = false }: { product: Product; p
   };
   return (
     <motion.article
-      className="product-card"
+      className={`product-card ${compact ? "compact-product-card" : ""}`}
       whileHover={reduceMotion ? undefined : { y: -8 }}
       transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
     >
@@ -43,13 +43,17 @@ export function ProductCard({ product, priority = false }: { product: Product; p
         <div className="card-tools"><button className={`card-tool ${saved ? "active" : ""}`} onClick={(event) => { event.preventDefault(); toggleSaved(); }} aria-label={saved ? "Remove from wishlist" : "Save to wishlist"}><Heart size={15} fill={saved ? "currentColor" : "none"} /></button><button className={`card-tool ${compared ? "active" : ""}`} onClick={(event) => { event.preventDefault(); toggleCompared(); }} aria-label={compared ? "Remove from compare" : "Compare product"}>{compared ? <Check size={15} /> : <span>⇄</span>}</button></div>
       </Link>
       <div className="product-content">
+        {compact && <div className="compact-card-top"><span className="compact-badge">{product.badge || "নির্বাচিত"}</span><button className={`compact-save ${saved ? "active" : ""}`} onClick={toggleSaved} aria-label={saved ? "Remove from wishlist" : "Save for later"}><Heart size={15} fill={saved ? "currentColor" : "none"} /></button></div>}
         <div className="product-location"><MapPin size={13} />{product.district} · {product.region}</div>
         <Link href={`/products/${product.slug}`}><h3>{product.nameBn}</h3><p className="product-en">{product.nameEn}</p></Link>
         <div className="product-meta"><span>★ {product.rating.toFixed(1)} <small>({product.reviews})</small></span><span>{product.pack}</span></div>
+        {compact && <><p className="product-card-description">{product.description}</p><div className="compact-sku"><span>▦ <b>{product.sku}</b> · {product.provenance === "pending" ? "Pending verification" : "Demo trace ready"}</span></div></>}
         <div className="product-buy-row">
           <div><strong>{formatBDT(product.price)}</strong>{product.compareAt && <del>{formatBDT(product.compareAt)}</del>}</div>
           <div className="card-actions"><button className="card-add" onClick={() => void add(product)} aria-label={`Add ${product.nameEn} to cart`}><Plus size={16} /> যোগ করুন</button><button className="card-buy" onClick={async () => { await add(product); window.location.assign("/checkout"); }}><ShoppingBag size={15} /> এখনই কিনুন</button></div>
         </div>
+        {compact && <div className="compact-stock"><strong>In stock</strong><span>{product.pack}</span></div>}
+        {compact && <button className="compact-subscribe" onClick={() => void add(product)}>↻ Subscribe &amp; Save</button>}
       </div>
     </motion.article>
   );

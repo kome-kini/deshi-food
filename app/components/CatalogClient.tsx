@@ -56,7 +56,7 @@ export function CatalogClient({ initialQuery = "", initialCategory = "", initial
             <label>সাজান<select value={sort} onChange={(event) => setSort(event.target.value)}><option value="featured">Featured</option><option value="price-low">দাম: কম থেকে বেশি</option><option value="price-high">দাম: বেশি থেকে কম</option><option value="rating">Rating</option><option value="newest">নতুন</option></select></label>
           </div>
           {(query || category || region || traceOnly) && <div className="active-filters"><span>Active:</span>{query && <button onClick={() => setQuery("")}>{query} <X /></button>}{category && <button onClick={() => setCategory("")}>{category} <X /></button>}{region && <button onClick={() => setRegion("")}>{region} <X /></button>}{traceOnly && <button onClick={() => setTraceOnly(false)}>Trace ready <X /></button>}</div>}
-          {filtered.length ? <div className="catalog-grid">{filtered.map((product, index) => <Reveal key={product.slug} delay={Math.min(index * 0.04, 0.2)}><ProductCard product={product} /></Reveal>)}</div> : <div className="empty-state"><Search /><h2>কোনো পণ্য মেলেনি</h2><p>বানান, category অথবা region filter বদলে দেখুন।</p><button onClick={clear}>সব পণ্য দেখুন</button></div>}
+          {filtered.length ? <div className="catalog-grid">{filtered.map((product, index) => <Reveal key={product.slug} delay={Math.min(index * 0.04, 0.2)}><ProductCard product={product} compact /></Reveal>)}</div> : <div className="empty-state"><Search /><h2>কোনো পণ্য মেলেনি</h2><p>বানান, category অথবা region filter বদলে দেখুন।</p><button onClick={clear}>সব পণ্য দেখুন</button></div>}
         </section>
       </div>
     </main>
