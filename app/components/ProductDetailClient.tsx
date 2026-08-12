@@ -39,16 +39,16 @@ export function ProductDetailClient({ product }: { product: Product }) {
         <Reveal className="pdp-summary" delay={0.08}>
           <div className="pdp-kicker"><span>{product.category}</span><span>SKU {product.sku}</span></div>
           <h1>{product.nameBn}</h1><p className="pdp-en">{product.nameEn}</p>
-          <div className="pdp-rating"><span><Star fill="currentColor" size={16} /> {product.rating}</span><button onClick={() => { setTab(3); document.querySelector(".pdp-detail")?.scrollIntoView({ behavior: "smooth" }); }}>{product.reviews}টি verified-demo review</button></div>
+          <div className="pdp-rating"><span>{product.rating ? <><Star fill="currentColor" size={16} /> {product.rating}</> : "Rating pending"}</span><button onClick={() => { setTab(3); document.querySelector(".pdp-detail")?.scrollIntoView({ behavior: "smooth" }); }}>{product.reviews ? `${product.reviews}টি verified-demo review` : "Reviews pending"}</button></div>
           <p className="pdp-description">{product.description}</p>
           <div className={`pdp-trace-callout ${product.provenance === "pending" ? "pending" : ""}`}><ScanLine /><div><strong>{product.provenance === "pending" ? "Pending verification" : "Demo provenance profile ready"}</strong><p>{product.provenance === "pending" ? "অসম্পূর্ণ প্রমাণের জায়গায় কোনো উৎস বা গুণমানের দাবি অনুমান করা হয়নি।" : `${product.batchCode} দিয়ে approved public fields দেখুন।`}</p></div></div>
-          <div className="pdp-price"><strong>{formatBDT(product.price)}</strong>{product.compareAt && <del>{formatBDT(product.compareAt)}</del>}<small>VAT/শিপিং checkout quote-এ</small></div>
+          <div className="pdp-price"><strong>{product.price ? formatBDT(product.price) : "Price pending"}</strong>{product.compareAt && <del>{formatBDT(product.compareAt)}</del>}<small>{product.price ? "VAT/শিপিং checkout quote-এ" : "Pricing and pack size require supplier confirmation"}</small></div>
           <div className="pack-picker"><span>প্যাক সাইজ</span><div><button className="active" onClick={() => setPack(product.pack)}>{product.pack}</button></div></div>
           <div className="stock-line"><span className={product.stock < 20 ? "low" : ""}><i />{product.stock < 20 ? `কম স্টক • ${product.stock} demo units` : "ডেমো স্টকে আছে"}</span><span><Truck /> Dhaka delivery estimate: ১–২ দিন</span></div>
           <div className="pdp-purchase">
             <div className="qty-control"><button onClick={() => setQuantity((value) => Math.max(1, value - 1))} aria-label="Decrease quantity"><Minus /></button><span>{quantity}</span><button onClick={() => setQuantity((value) => Math.min(product.stock, value + 1))} aria-label="Increase quantity"><Plus /></button></div>
-            <button className="button add-cart-button" onClick={() => void add(product, quantity)}><ShoppingBag /> কার্টে যোগ করুন</button>
-            <button className="button buy-now-button" onClick={() => void buyNow()}>এখনই কিনুন</button>
+            <button className="button add-cart-button" disabled={!product.price || !product.stock} onClick={() => void add(product, quantity)}><ShoppingBag /> {product.price && product.stock ? "কার্টে যোগ করুন" : "তথ্য যাচাই চলছে"}</button>
+            <button className="button buy-now-button" disabled={!product.price || !product.stock} onClick={() => void buyNow()}>{product.price && product.stock ? "এখনই কিনুন" : "শীঘ্রই পাওয়া যাবে"}</button>
           </div>
           <div className="pdp-utility"><button onClick={() => setSaved((value) => !value)}><Heart fill={saved ? "currentColor" : "none"} /> {saved ? "Saved" : "Save for later"}</button><button onClick={async () => { const url = window.location.href; if (navigator.share) await navigator.share({ title: product.nameBn, url }).catch(() => undefined); else await navigator.clipboard?.writeText(url).catch(() => undefined); }}><Share2 /> শেয়ার</button></div>
           <div className="pdp-assurance"><span><ShieldCheck /><b>Responsible claims</b><small>Evidence-gated copy</small></span><span><Check /><b>Batch aware</b><small>Complaint & recall ready</small></span></div>

@@ -26,6 +26,8 @@ export type Product = {
   trace: { label: string; value: string; detail: string }[];
 };
 
+import { supplierCatalogProducts } from "./supplier-catalog";
+
 export const products: Product[] = [
   {
     id: "prod-rice-01",
@@ -266,6 +268,7 @@ export const products: Product[] = [
       { label: "ব্যাচ", value: "Active", detail: "ডেমো recall mapping প্রস্তুত" },
     ],
   },
+  ...supplierCatalogProducts,
 ];
 
 export const categories = [
@@ -275,6 +278,9 @@ export const categories = [
   { name: "মধু ও মিষ্টি", en: "Honey & sweets", icon: "মধু", count: 14 },
   { name: "পিঠা ও নাশতা", en: "Pitha & snacks", icon: "পিঠা", count: 21 },
   { name: "ডাল ও শস্য", en: "Lentils", icon: "ডাল", count: 11 },
+  { name: "ময়দা ও ছাতু", en: "Flour & sattu", icon: "আটা", count: 7 },
+  { name: "বীজ ও গুঁড়া", en: "Seeds & powders", icon: "বীজ", count: 5 },
+  { name: "কম্বো প্যাক", en: "Combo packs", icon: "প্যাক", count: 1 },
 ];
 
 export const divisions = ["ঢাকা", "চট্টগ্রাম", "রাজশাহী", "খুলনা", "বরিশাল", "সিলেট", "রংপুর", "ময়মনসিংহ"];

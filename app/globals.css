@@ -157,6 +157,7 @@ img, video { display: block; max-width: 100%; }
 .card-add, .card-buy { border: 0; border-radius: 7px; min-height: 34px; display: inline-flex; align-items: center; justify-content: center; gap: 5px; font-size: 11px; font-weight: 800; }
 .card-add { background: #edf4ee; color: var(--forest); }
 .card-buy { background: var(--forest); color: white; }
+.card-add:disabled, .card-buy:disabled { cursor: not-allowed; opacity: .55; }
 .product-content { padding: 17px 17px 18px; }
 .product-location { display: flex; align-items: center; gap: 4px; margin-bottom: 8px; color: var(--terracotta); font-size: 10px; font-weight: 600; }
 .product-content h3 { margin: 0; font-size: 18px; line-height: 1.25; }
