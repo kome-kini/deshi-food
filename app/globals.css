@@ -171,7 +171,7 @@ img, video { display: block; max-width: 100%; }
 .product-buy-row button { width: 38px; height: 38px; display: grid; place-items: center; border: 0; border-radius: 50%; background: var(--forest); color: white; transition: .25s ease; }
 .product-buy-row button:hover { background: var(--gold); color: var(--forest); transform: rotate(90deg); }
 .compact-product-card { border: 1px solid #e0e4df; border-radius: 16px; box-shadow: 0 8px 24px rgba(24,55,44,.045); }
-.compact-product-card .product-image-wrap { display: block; aspect-ratio: 1.55; background: #e6eadf; }
+.compact-product-card .product-image-wrap { display: block; aspect-ratio: 1.18; background: #e6eadf; }
 .compact-product-card .product-image-wrap img { object-fit: cover; }
 .compact-product-card .product-image-wrap .product-wash { opacity: .22; }
 .compact-product-card .product-image-wrap .trace-badge { left: 10px; bottom: 10px; font-size: 8px; }
@@ -291,7 +291,7 @@ img, video { display: block; max-width: 100%; }
 .active-filters button { display: flex; align-items: center; gap: 5px; padding: 5px 8px; border: 1px solid var(--line); border-radius: 999px; background: var(--paper); }
 .active-filters svg { width: 12px; height: 12px; }
 .catalog-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 19px; }
-.catalog-page .catalog-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.catalog-page .catalog-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 14px; }
 .empty-state { min-height: 420px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
 .empty-state > svg { width: 42px; height: 42px; color: var(--muted); }
 .empty-state h2 { margin: 16px 0 4px; font-family: var(--font-display); font-size: 34px; }
@@ -895,7 +895,7 @@ img, video { display: block; max-width: 100%; }
   .product-rail { grid-template-columns: repeat(3, 1fr); }
   .product-rail > div:nth-child(n+4) { display: none; }
   .category-grid { grid-template-columns: 1fr 1fr; }
-  .catalog-grid, .catalog-page .catalog-grid { grid-template-columns: repeat(2, 1fr); }
+  .catalog-grid, .catalog-page .catalog-grid { grid-template-columns: repeat(3, 1fr); }
   .pdp-main { gap: 40px; }
   .pdp-hero-image { min-height: 580px; }
   .pdp-purchase { grid-template-columns: auto 1fr; }
