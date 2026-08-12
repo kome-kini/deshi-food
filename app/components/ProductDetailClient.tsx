@@ -3,8 +3,8 @@
 import Image from "next/image";
 import { useState } from "react";
 import { Check, ChevronDown, Heart, Minus, Plus, ScanLine, Share2, ShieldCheck, ShoppingBag, Star, Truck } from "lucide-react";
-import type { Product } from "@/lib/data";
-import { formatBDT, products } from "@/lib/data";
+import type { Product } from "@/lib/product-types";
+import { formatBDT } from "@/lib/format";
 import { useCart } from "./CartProvider";
 import { ProductCard } from "./ProductCard";
 import { Reveal } from "./Reveal";
@@ -12,7 +12,7 @@ import Link from "./SafeLink";
 
 const tabs = ["পণ্যের তথ্য", "উৎস ও Producer", "Batch trace", "Reviews & Q&A"];
 
-export function ProductDetailClient({ product }: { product: Product }) {
+export function ProductDetailClient({ product, relatedProducts = [] }: { product: Product; relatedProducts?: Product[] }) {
   const [quantity, setQuantity] = useState(1);
   const [tab, setTab] = useState(0);
   const [pack, setPack] = useState(product.pack);
@@ -21,7 +21,7 @@ export function ProductDetailClient({ product }: { product: Product }) {
   const [questionOpen, setQuestionOpen] = useState(false);
   const [traceNotice, setTraceNotice] = useState("");
   const { add } = useCart();
-  const related = products.filter((candidate) => candidate.slug !== product.slug).sort((a, b) => Number(b.category === product.category) - Number(a.category === product.category)).slice(0, 3);
+  const related = relatedProducts.filter((candidate) => candidate.slug !== product.slug).slice(0, 3);
 
   const buyNow = async () => {
     await add(product, quantity);

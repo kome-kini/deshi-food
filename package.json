@@ -11,9 +11,13 @@
     "start": "vinext start",
     "test": "npm run build && node --test tests/rendered-html.test.mjs",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
-    "db:generate": "drizzle-kit generate"
+    "db:generate": "drizzle-kit generate",
+    "db:validate": "prisma validate --schema prisma/schema.prisma",
+    "db:migrate:deploy": "prisma migrate deploy --schema prisma/schema.prisma",
+    "db:generate:prisma": "prisma generate --schema prisma/schema.prisma"
   },
   "dependencies": {
+    "@prisma/client": "^6.19.0",
     "drizzle-orm": "0.45.2",
     "framer-motion": "^13.1.0",
     "lucide-react": "^1.31.0",
@@ -38,6 +42,7 @@
     "eslint-plugin-react": "7.37.5",
     "eslint-plugin-react-hooks": "7.1.1",
     "globals": "16.4.0",
+    "prisma": "^6.19.0",
     "react-server-dom-webpack": "19.2.6",
     "tailwindcss": "4.2.1",
     "typescript": "5.9.3",

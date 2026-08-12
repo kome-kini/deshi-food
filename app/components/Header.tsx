@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { ChevronDown, MapPin, Menu, Search, ShoppingCart } from "lucide-react";
-import { categories } from "@/lib/data";
 import { useCart } from "./CartProvider";
 import Link from "./SafeLink";
+import type { UiCategory } from "@/lib/catalog-ui-loader";
 
-export function Header() {
+export function Header({ categories }: { categories: UiCategory[] }) {
   const { count } = useCart();
   const [scope, setScope] = useState("");
   const [query, setQuery] = useState("");

@@ -2,11 +2,17 @@
 
 import { useMemo, useState } from "react";
 import { Filter, Search, SlidersHorizontal, X } from "lucide-react";
-import { categories, divisions, products } from "@/lib/data";
+import type { Product } from "@/lib/product-types";
 import { ProductCard } from "./ProductCard";
 import { Reveal } from "./Reveal";
 
-export function CatalogClient({ initialQuery = "", initialCategory = "", initialRegion = "", initialTrace = false }: {
+type CatalogCategory = { name: string; en: string; icon?: string; count?: number };
+
+export function CatalogClient({ products, categories, divisions, synthetic = false, initialQuery = "", initialCategory = "", initialRegion = "", initialTrace = false }: {
+  products: Product[];
+  categories: CatalogCategory[];
+  divisions: string[];
+  synthetic?: boolean;
   initialQuery?: string;
   initialCategory?: string;
   initialRegion?: string;
@@ -32,7 +38,7 @@ export function CatalogClient({ initialQuery = "", initialCategory = "", initial
       if (sort === "newest") return Number(Boolean(b.badge === "নতুন")) - Number(Boolean(a.badge === "নতুন"));
       return b.reviews - a.reviews;
     });
-  }, [query, category, region, sort, traceOnly]);
+  }, [products, query, category, region, sort, traceOnly]);
 
   const clear = () => { setQuery(""); setCategory(""); setRegion(""); setTraceOnly(false); };
   return (
@@ -52,7 +58,7 @@ export function CatalogClient({ initialQuery = "", initialCategory = "", initial
         </aside>
         <section className="catalog-results">
           <div className="catalog-toolbar">
-            <div><button className="mobile-filter" onClick={() => setFiltersOpen(true)}><SlidersHorizontal size={16} /> ফিল্টার</button><span>{filtered.length}টি demo পণ্য</span></div>
+            <div><button className="mobile-filter" onClick={() => setFiltersOpen(true)}><SlidersHorizontal size={16} /> ফিল্টার</button><span>{filtered.length}{synthetic ? "টি demo" : "টি"} পণ্য</span></div>
             <label>সাজান<select value={sort} onChange={(event) => setSort(event.target.value)}><option value="featured">Featured</option><option value="price-low">দাম: কম থেকে বেশি</option><option value="price-high">দাম: বেশি থেকে কম</option><option value="rating">Rating</option><option value="newest">নতুন</option></select></label>
           </div>
           {(query || category || region || traceOnly) && <div className="active-filters"><span>Active:</span>{query && <button onClick={() => setQuery("")}>{query} <X /></button>}{category && <button onClick={() => setCategory("")}>{category} <X /></button>}{region && <button onClick={() => setRegion("")}>{region} <X /></button>}{traceOnly && <button onClick={() => setTraceOnly(false)}>Trace ready <X /></button>}</div>}

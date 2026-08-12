@@ -4,7 +4,8 @@ import Image from "next/image";
 import Link from "./SafeLink";
 import { useEffect, useState } from "react";
 import { Bell, ChevronRight, CircleUserRound, Heart, LockKeyhole, MapPin, Package, RotateCcw, Settings, ShoppingBag, Star, TicketCheck } from "lucide-react";
-import { formatBDT, products } from "@/lib/data";
+import { formatBDT } from "@/lib/format";
+import type { Product } from "@/lib/product-types";
 import { useCart } from "./CartProvider";
 
 const menu = [
@@ -13,7 +14,7 @@ const menu = [
   ["returns", "Returns / complaints", TicketCheck], ["notifications", "Notifications", Bell], ["security", "Security", LockKeyhole],
 ] as const;
 
-export function AccountClient({ user }: { user: { name?: string | null; email?: string | null } | null }) {
+export function AccountClient({ user, products }: { user: { name?: string | null; email?: string | null } | null; products: Product[] }) {
   const [active, setActive] = useState<(typeof menu)[number][0]>("overview");
   const [orders, setOrders] = useState<{ trackingCode: string; status: string; total: number; placedAt: string }[]>([]);
   const [addressEditing, setAddressEditing] = useState(false);

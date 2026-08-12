@@ -1,9 +1,11 @@
 import { ensureRuntimeSchema, getD1, getOpenCart, readCart, requestIdentity, withIdentityCookie } from "@/db/runtime";
+import { isDemoMode } from "@/lib/runtime-mode";
 
 function safeText(value: unknown, max = 160) { return typeof value === "string" ? value.trim().slice(0, max) : ""; }
 function maskMobile(value: string) { return value.length >= 5 ? `${value.slice(0, 2)}•••••••${value.slice(-2)}` : "•••••••••••"; }
 
 export async function GET(request: Request) {
+  if (!isDemoMode()) return Response.json({ error: "Orders are not enabled until Phase 3 checkout wiring." }, { status: 503 });
   const identity = requestIdentity(request);
   try {
     const db = getD1(); await ensureRuntimeSchema(db);
@@ -19,6 +21,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  if (!isDemoMode()) return Response.json({ error: "Orders are not enabled until Phase 3 checkout wiring." }, { status: 503 });
   const identity = requestIdentity(request);
   try {
     const payload = await request.json() as { contact?: { name?: string; mobile?: string; email?: string }; address?: { division?: string; district?: string; upazila?: string; area?: string; address?: string; landmark?: string }; delivery?: string; payment?: string; coupon?: string };

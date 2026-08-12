@@ -1,30 +1,6 @@
-export type Product = {
-  id: string;
-  slug: string;
-  sku: string;
-  nameBn: string;
-  nameEn: string;
-  category: string;
-  region: string;
-  district: string;
-  price: number;
-  compareAt?: number;
-  pack: string;
-  stock: number;
-  rating: number;
-  reviews: number;
-  image: string;
-  accent: string;
-  provenance: "verified-demo" | "pending";
-  badge?: string;
-  description: string;
-  story: string;
-  ingredients: string;
-  storage: string;
-  shelfLife: string;
-  batchCode: string;
-  trace: { label: string; value: string; detail: string }[];
-};
+export type { Product } from "./product-types";
+import type { Product } from "./product-types";
+export { formatBDT } from "./format";
 
 import { supplierCatalogProducts } from "./supplier-catalog";
 
@@ -357,8 +333,4 @@ export const analyticsSeed = {
 
 export function getProduct(slug: string) {
   return products.find((product) => product.slug === slug);
-}
-
-export function formatBDT(value: number) {
-  return new Intl.NumberFormat("bn-BD", { style: "currency", currency: "BDT", maximumFractionDigits: 0 }).format(value);
 }

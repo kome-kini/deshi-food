@@ -1,6 +1,8 @@
 import { ensureRuntimeSchema, getD1, requestIdentity } from "@/db/runtime";
+import { isDemoMode } from "@/lib/runtime-mode";
 
 export async function GET(request: Request, { params }: { params: Promise<{ trackingCode: string }> }) {
+  if (!isDemoMode()) return Response.json({ error: "Tracking is not enabled until Phase 4 fulfilment wiring." }, { status: 503 });
   try {
     const { trackingCode } = await params; const code = trackingCode.trim().toUpperCase();
     if (!/^DJ-2026-\d{4}$/.test(code)) return Response.json({ error: "Record not found" }, { status: 404 });

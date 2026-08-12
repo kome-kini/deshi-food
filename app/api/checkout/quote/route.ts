@@ -1,6 +1,8 @@
 import { ensureRuntimeSchema, getD1, readCart, requestIdentity, withIdentityCookie } from "@/db/runtime";
+import { isDemoMode } from "@/lib/runtime-mode";
 
 export async function POST(request: Request) {
+  if (!isDemoMode()) return Response.json({ error: "Checkout quotes are not enabled until Phase 3 payment wiring." }, { status: 503 });
   const identity = requestIdentity(request);
   try {
     const payload = await request.json().catch(() => ({})) as { coupon?: string; delivery?: string };

@@ -1,16 +1,19 @@
 import { ensureRuntimeSchema, getD1, getOpenCart, readCart, requestIdentity, withIdentityCookie } from "@/db/runtime";
-import { getProduct } from "@/lib/data";
+import { isDemoMode } from "@/lib/runtime-mode";
 
 export async function GET(request: Request) {
+  if (!isDemoMode()) return Response.json({ error: "Cart service is not enabled until Phase 3 checkout wiring." }, { status: 503 });
   const identity = requestIdentity(request);
   try { const db = getD1(); await ensureRuntimeSchema(db); return withIdentityCookie(await readCart(db, identity.customerKey), identity); }
   catch { return withIdentityCookie({ items: [], count: 0, subtotal: 0, warning: "Database preview unavailable" }, identity); }
 }
 
 export async function POST(request: Request) {
+  if (!isDemoMode()) return Response.json({ error: "Cart service is not enabled until Phase 3 checkout wiring." }, { status: 503 });
   const identity = requestIdentity(request);
   try {
     const payload = await request.json() as { slug?: string; quantityDelta?: number };
+    const { getProduct } = await import("@/lib/data");
     const product = payload.slug ? getProduct(payload.slug) : null;
     const delta = Math.max(1, Math.min(20, Math.floor(payload.quantityDelta ?? 1)));
     if (!product) return withIdentityCookie({ error: "Valid product slug required" }, identity, 400);
@@ -24,9 +27,11 @@ export async function POST(request: Request) {
 }
 
 export async function PATCH(request: Request) {
+  if (!isDemoMode()) return Response.json({ error: "Cart service is not enabled until Phase 3 checkout wiring." }, { status: 503 });
   const identity = requestIdentity(request);
   try {
     const payload = await request.json() as { slug?: string; quantity?: number };
+    const { getProduct } = await import("@/lib/data");
     const product = payload.slug ? getProduct(payload.slug) : null;
     if (!product || !Number.isFinite(payload.quantity)) return withIdentityCookie({ error: "Valid slug and quantity required" }, identity, 400);
     const db = getD1(); await ensureRuntimeSchema(db); const cart = await getOpenCart(db, identity.customerKey);
@@ -38,6 +43,7 @@ export async function PATCH(request: Request) {
 }
 
 export async function DELETE(request: Request) {
+  if (!isDemoMode()) return Response.json({ error: "Cart service is not enabled until Phase 3 checkout wiring." }, { status: 503 });
   const identity = requestIdentity(request);
   try {
     const slug = new URL(request.url).searchParams.get("slug");

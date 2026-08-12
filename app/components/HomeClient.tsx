@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "./SafeLink";
 import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight, ScanLine } from "lucide-react";
-import { categories, products } from "@/lib/data";
+import type { Product } from "@/lib/product-types";
 import { ProductCard } from "./ProductCard";
 
 const slides = [
@@ -15,7 +15,9 @@ const slides = [
 
 const categoryImage = (name: string) => name.includes("মসলা") ? "/media/spices.jpg" : name.includes("তেল") ? "/media/seasonings.jpg" : name.includes("মধু") ? "/media/honey.jpg" : name.includes("বীজ") ? "/media/seasonings.jpg" : "/media/rice.jpg";
 
-export function HomeClient() {
+type HomeCategory = { name: string; en: string; icon?: string; count?: number };
+
+export function HomeClient({ products, categories }: { products: Product[]; categories: HomeCategory[] }) {
   const [slide, setSlide] = useState(0);
   useEffect(() => {
     const timer = window.setInterval(() => setSlide((current) => (current + 1) % slides.length), 6000);

@@ -4,8 +4,8 @@ import Image from "next/image";
 import Link from "./SafeLink";
 import { Heart, Star } from "lucide-react";
 import { useState } from "react";
-import type { Product } from "@/lib/data";
-import { formatBDT } from "@/lib/data";
+import type { Product } from "@/lib/product-types";
+import { formatBDT } from "@/lib/format";
 import { useCart } from "./CartProvider";
 
 export function ProductCard({ product, priority = false, compact = false }: { product: Product; priority?: boolean; compact?: boolean }) {

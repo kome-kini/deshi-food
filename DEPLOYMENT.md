@@ -36,6 +36,10 @@ demo safe:
 - ensure the demo's admin route is not presented as a secure production control
   center simply because it is visually hidden from storefront navigation.
 
+Set `DEMO_MODE=true` only for this disposable experience. The rendered-html
+test harness sets that flag explicitly; production/staging Postgres deployments
+must set `DEMO_MODE=false`.
+
 If the demo needs durable Sites-owned records later, use the hosting platform's
 managed persistence bindings. Do not point browser code directly at the
 production Supabase database.
@@ -176,6 +180,13 @@ npx prisma migrate deploy --schema prisma/schema.prisma
 psql "$DIRECT_URL" -v ON_ERROR_STOP=1 -f prisma/hardening.sql
 npx prisma generate --schema prisma/schema.prisma
 ```
+
+The repository includes the reviewed baseline migration at
+`prisma/migrations/0001_deshi_catalog/migration.sql` plus
+`prisma/migrations/migration_lock.toml`. Apply it to a disposable staging
+Postgres database with the commands above, then apply `prisma/hardening.sql`.
+Never run `prisma/seed.sql` against staging or production; it is reserved for
+disposable test databases.
 
 Migration rules:
 

@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+// These assertions cover the disposable Sites storefront. Production builds
+// must set DEMO_MODE=false and provide Postgres credentials explicitly.
+process.env.DEMO_MODE = "true";
+
 async function render(path = "/", headers = {}) {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);
   workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}`);

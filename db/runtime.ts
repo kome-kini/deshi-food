@@ -1,5 +1,4 @@
 import { env } from "cloudflare:workers";
-import { analyticsSeed, getProduct } from "@/lib/data";
 import { isAdminActor } from "@/lib/admin-auth";
 
 let schemaReady: Promise<void> | null = null;
@@ -16,6 +15,7 @@ export function ensureRuntimeSchema(db: D1Database) {
 }
 
 async function initialize(db: D1Database) {
+  const { analyticsSeed } = await import("@/lib/data");
   await db.batch([
     db.prepare("CREATE TABLE IF NOT EXISTS carts (id TEXT PRIMARY KEY NOT NULL, customer_key TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'open', created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)"),
     db.prepare("CREATE INDEX IF NOT EXISTS idx_carts_customer_status ON carts (customer_key, status)"),
@@ -84,6 +84,7 @@ export async function getOpenCart(db: D1Database, customerKey: string) {
 }
 
 export async function readCart(db: D1Database, customerKey: string) {
+  const { getProduct } = await import("@/lib/data");
   const cart = await getOpenCart(db, customerKey);
   const result = await db.prepare("SELECT product_slug, quantity FROM cart_items WHERE cart_id = ? AND quantity > 0 ORDER BY created_at").bind(cart.id).all<{ product_slug: string; quantity: number }>();
   const rows = result.results as { product_slug: string; quantity: number }[];

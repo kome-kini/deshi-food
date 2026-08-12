@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "./SafeLink";
 import { useState } from "react";
 import { ArrowRight, Minus, Plus, ShieldCheck, ShoppingBag, Trash2, Truck } from "lucide-react";
-import { formatBDT } from "@/lib/data";
+import { formatBDT } from "@/lib/format";
 import { useCart } from "./CartProvider";
 
 export function CartClient() {

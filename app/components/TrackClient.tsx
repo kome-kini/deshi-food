@@ -3,7 +3,7 @@
 import Link from "./SafeLink";
 import { useEffect, useState } from "react";
 import { Check, MapPin, Package, Search, Truck } from "lucide-react";
-import { formatBDT } from "@/lib/data";
+import { formatBDT } from "@/lib/format";
 
 type TrackResult = { trackingCode: string; status: string; total: number; placedAt: string; destination: string; eta: string; items: { name: string; quantity: number }[]; timeline: { label: string; detail: string; complete: boolean }[] };
 

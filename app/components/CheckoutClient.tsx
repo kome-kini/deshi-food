@@ -3,13 +3,13 @@
 import Link from "./SafeLink";
 import { useMemo, useState } from "react";
 import { ArrowLeft, ArrowRight, Check, CreditCard, Landmark, PackageCheck, ShieldCheck, Smartphone, Truck } from "lucide-react";
-import { divisions, formatBDT } from "@/lib/data";
+import { formatBDT } from "@/lib/format";
 import { useCart } from "./CartProvider";
 
 const steps = ["যোগাযোগ", "ঠিকানা", "ডেলিভারি", "পেমেন্ট", "রিভিউ"];
 const initialForm = { name: "", mobile: "", email: "", division: "ঢাকা", district: "", upazila: "", area: "", address: "", landmark: "", delivery: "standard", payment: "cod" };
 
-export function CheckoutClient({ initialCoupon = "" }: { initialCoupon?: string }) {
+export function CheckoutClient({ divisions, initialCoupon = "" }: { divisions: string[]; initialCoupon?: string }) {
   const { lines, subtotal, refresh, loading } = useCart();
   const [step, setStep] = useState(0);
   const [form, setForm] = useState(initialForm);

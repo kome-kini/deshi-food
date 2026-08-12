@@ -1,7 +1,8 @@
-import { getProduct } from "@/lib/data";
+import { handleProductDetail } from "@/lib/catalog-http";
 
-export async function GET(_request: Request, { params }: { params: Promise<{ slug: string }> }) {
+export const dynamic = "force-dynamic";
+
+export async function GET(request: Request, { params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const product = getProduct(slug);
-  return product ? Response.json({ product, synthetic: true }) : Response.json({ error: "Product not found" }, { status: 404 });
+  return handleProductDetail(request, slug);
 }
