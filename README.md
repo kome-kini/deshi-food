@@ -12,8 +12,48 @@ Requires Node.js 22.13 or newer.
 
 ```bash
 npm install
+npm run db:generate
 npm run dev
 ```
+
+## Clean installation and deployment
+
+1. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+2. Create the environment file and fill in provider credentials only when enabling those integrations:
+
+   ```bash
+   cp .env.example .env.local
+   ```
+
+3. Generate the database migration artifacts:
+
+   ```bash
+   npm run db:generate
+   ```
+
+   The runnable Sites staging app uses the Cloudflare D1 `DB` binding declared in `.openai/hosting.json`. The production PostgreSQL/Supabase handoff schema and seed are in `prisma/`; apply them with `npx prisma migrate deploy` and `npx prisma db seed` when using the PostgreSQL deployment described in `DEPLOYMENT.md`.
+
+4. Run the development server:
+
+   ```bash
+   npm run dev
+   ```
+
+5. Build for production and run the verification suite:
+
+   ```bash
+   npm run lint
+   npm run build
+   node --test tests/rendered-html.test.mjs
+   npm run start
+   ```
+
+6. Deploy the Cloudflare Sites build using the project workflow in `DEPLOYMENT.md` (or your CI provider's equivalent). Never commit `.env.local` or provider secrets.
 
 ## Product surfaces
 
