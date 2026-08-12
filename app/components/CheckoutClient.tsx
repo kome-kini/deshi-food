@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "./SafeLink";
 import { useMemo, useState } from "react";
 import { ArrowLeft, ArrowRight, Check, CreditCard, Landmark, PackageCheck, ShieldCheck, Smartphone, Truck } from "lucide-react";
 import { divisions, formatBDT } from "@/lib/data";
@@ -9,11 +9,11 @@ import { useCart } from "./CartProvider";
 const steps = ["যোগাযোগ", "ঠিকানা", "ডেলিভারি", "পেমেন্ট", "রিভিউ"];
 const initialForm = { name: "", mobile: "", email: "", division: "ঢাকা", district: "", upazila: "", area: "", address: "", landmark: "", delivery: "standard", payment: "cod" };
 
-export function CheckoutClient() {
-  const { lines, subtotal, refresh } = useCart();
+export function CheckoutClient({ initialCoupon = "" }: { initialCoupon?: string }) {
+  const { lines, subtotal, refresh, loading } = useCart();
   const [step, setStep] = useState(0);
   const [form, setForm] = useState(initialForm);
-  const [coupon, setCoupon] = useState("");
+  const [coupon, setCoupon] = useState(initialCoupon);
   const [placing, setPlacing] = useState(false);
   const [error, setError] = useState("");
   const [order, setOrder] = useState<{ trackingCode: string; total: number } | null>(null);
@@ -21,7 +21,7 @@ export function CheckoutClient() {
   const discount = coupon.trim().toUpperCase() === "DESHI10" ? Math.min(Math.round(subtotal * 0.1), 300) : 0;
   const total = subtotal + delivery - discount;
   const canContinue = useMemo(() => {
-    if (step === 0) return form.name.trim().length > 1 && /^01\d{9}$/.test(form.mobile.replace(/\s/g, ""));
+    if (step === 0) return form.name.trim().length > 1 && /^01\d{9}$/.test(form.mobile.replace(/\s/g, "")) && (!form.email || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email));
     if (step === 1) return Boolean(form.district.trim() && form.upazila.trim() && form.address.trim().length > 5);
     return true;
   }, [step, form]);
@@ -39,6 +39,7 @@ export function CheckoutClient() {
   };
 
   if (order) return <main className="checkout-page"><div className="order-success"><span><PackageCheck /></span><small>ডেমো অর্ডার নিশ্চিত</small><h1>ধন্যবাদ, {form.name}!</h1><p>আপনার staging order securely recorded হয়েছে। কোনো payment capture করা হয়নি।</p><div><small>Tracking code</small><strong>{order.trackingCode}</strong><span>{formatBDT(order.total)}</span></div><Link className="button button-dark" href={`/track?code=${order.trackingCode}`}>অর্ডার ট্র্যাক করুন <ArrowRight /></Link><Link href="/catalog">বাজারে ফিরুন</Link></div></main>;
+  if (loading) return <main className="checkout-page"><div className="cart-loading">Checkout প্রস্তুত হচ্ছে…</div></main>;
   if (!lines.length) return <main className="checkout-page"><div className="empty-cart"><h1>Checkout-এর জন্য কার্ট খালি</h1><Link className="button button-dark" href="/catalog">পণ্য বেছে নিন</Link></div></main>;
   return (
     <main className="checkout-page">

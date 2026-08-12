@@ -1,8 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import Link from "./SafeLink";
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import { useState } from "react";
 import { ArrowDown, ArrowRight, Check, ChevronRight, MapPin, Play, ScanLine, ShieldCheck, Sparkles } from "lucide-react";
 import { categories, divisions, products } from "@/lib/data";
 import { ProductCard } from "./ProductCard";
@@ -10,6 +11,8 @@ import { Reveal } from "./Reveal";
 
 export function HomeClient() {
   const reduceMotion = useReducedMotion();
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [newsletterStatus, setNewsletterStatus] = useState("");
   const { scrollYProgress } = useScroll();
   const heroY = useTransform(scrollYProgress, [0, 0.3], [0, reduceMotion ? 0 : 120]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.23], [1, 0.4]);
@@ -144,8 +147,8 @@ export function HomeClient() {
       <section className="newsletter-section">
         <Reveal className="newsletter-inner">
           <span>দেশের স্বাদের চিঠি</span><h2>ঋতুর গল্প, নতুন পণ্য<br />আর উৎসের খবর।</h2>
-          <form onSubmit={(event) => event.preventDefault()}><label className="sr-only" htmlFor="newsletter-email">Email address</label><input id="newsletter-email" type="email" placeholder="আপনার ইমেইল" /><button type="submit">যোগ দিন <ArrowRight /></button></form>
-          <small>ডেমো ফর্ম • Production-এ consent ও unsubscribe audit করা হবে</small>
+          <form onSubmit={(event) => { event.preventDefault(); setNewsletterStatus(newsletterEmail.includes("@") ? "ধন্যবাদ—staging subscription preference recorded in this session." : "সঠিক ইমেইল লিখুন।"); }}><label className="sr-only" htmlFor="newsletter-email">Email address</label><input id="newsletter-email" type="email" required value={newsletterEmail} onChange={(event) => setNewsletterEmail(event.target.value)} placeholder="আপনার ইমেইল" /><button type="submit">যোগ দিন <ArrowRight /></button></form>
+          <small role="status">{newsletterStatus || "ডেমো ফর্ম • Production-এ consent ও unsubscribe audit করা হবে"}</small>
         </Reveal>
       </section>
     </main>

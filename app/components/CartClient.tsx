@@ -1,16 +1,23 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import Link from "./SafeLink";
+import { useState } from "react";
 import { ArrowRight, Minus, Plus, ShieldCheck, ShoppingBag, Trash2, Truck } from "lucide-react";
 import { formatBDT } from "@/lib/data";
 import { useCart } from "./CartProvider";
 
 export function CartClient() {
   const { lines, subtotal, loading, setQuantity, remove } = useCart();
+  const [coupon, setCoupon] = useState("");
+  const [couponMessage, setCouponMessage] = useState("");
+  const [discount, setDiscount] = useState(0);
+  const [appliedCoupon, setAppliedCoupon] = useState("");
+  const [quotedSubtotal, setQuotedSubtotal] = useState(0);
   const deliveryThreshold = 1499;
   const remaining = Math.max(0, deliveryThreshold - subtotal);
   const progress = Math.min(100, (subtotal / deliveryThreshold) * 100);
+  const effectiveDiscount = appliedCoupon && appliedCoupon === coupon.trim().toUpperCase() && quotedSubtotal === subtotal ? discount : 0;
   if (loading) return <main className="simple-page"><div className="cart-loading">কার্ট প্রস্তুত হচ্ছে…</div></main>;
   if (!lines.length) return (
     <main className="simple-page"><div className="empty-cart"><span><ShoppingBag /></span><h1>আপনার কার্ট এখনো খালি</h1><p>বাংলার pantry থেকে পছন্দের পণ্য যোগ করুন।</p><Link className="button button-dark" href="/catalog">বাজার ঘুরে দেখুন <ArrowRight /></Link></div></main>
@@ -32,10 +39,10 @@ export function CartClient() {
         </section>
         <aside className="order-summary">
           <h2>Order summary</h2>
-          <div><span>Subtotal</span><strong>{formatBDT(subtotal)}</strong></div><div><span>Delivery</span><strong>{remaining === 0 ? "Free" : "Checkout-এ হিসাব"}</strong></div><div><span>Discount</span><strong>Quote-এ যাচাই</strong></div>
-          <div className="summary-total"><span>আনুমানিক মোট</span><strong>{formatBDT(subtotal)}</strong></div>
-          <div className="coupon-box"><label htmlFor="coupon">Coupon code</label><div><input id="coupon" placeholder="DESHI10" /><button>Apply</button></div><small>Server eligibility checkout-এ যাচাই হবে</small></div>
-          <Link className="button checkout-button" href="/checkout">Secure checkout <ArrowRight /></Link>
+          <div><span>Subtotal</span><strong>{formatBDT(subtotal)}</strong></div><div><span>Delivery</span><strong>{remaining === 0 ? "Free" : "Checkout-এ হিসাব"}</strong></div><div><span>Discount</span><strong>{effectiveDiscount ? `−${formatBDT(effectiveDiscount)}` : "কোনো ছাড় নেই"}</strong></div>
+          <div className="summary-total"><span>আনুমানিক মোট</span><strong>{formatBDT(subtotal - effectiveDiscount)}</strong></div>
+          <div className="coupon-box"><label htmlFor="coupon">Coupon code</label><div><input id="coupon" value={coupon} onChange={(event) => { setCoupon(event.target.value); if (event.target.value.trim().toUpperCase() !== appliedCoupon) setCouponMessage(""); }} placeholder="DESHI10" /><button onClick={async () => { const response = await fetch("/api/checkout/quote", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ coupon, delivery: "standard" }) }).catch(() => null); const payload = response ? await response.json() as { quote?: { discount: number; couponStatus: string }; error?: string } : null; const accepted = response?.ok && payload?.quote?.couponStatus === "accepted"; setDiscount(accepted ? payload!.quote!.discount : 0); setAppliedCoupon(accepted ? coupon.trim().toUpperCase() : ""); setQuotedSubtotal(accepted ? subtotal : 0); setCouponMessage(accepted ? "DESHI10 প্রয়োগ হয়েছে" : payload?.error || "কুপনটি গ্রহণ করা হয়নি"); }}>{couponMessage ? "আবার যাচাই" : "Apply"}</button></div><small role="status">{couponMessage || "Server eligibility এখনই যাচাই হবে"}</small></div>
+          <Link className="button checkout-button" href={`/checkout${effectiveDiscount ? `?coupon=${encodeURIComponent(appliedCoupon)}` : ""}`}>Secure checkout <ArrowRight /></Link>
           <p className="secure-note"><ShieldCheck /> Price, coupon, stock ও delivery server-side revalidated</p>
           <div className="payment-chips"><span>COD</span><span>bKash</span><span>Nagad</span><span>Rocket</span><span>Card-ready</span></div>
         </aside>

@@ -1,5 +1,6 @@
 import { env } from "cloudflare:workers";
 import { analyticsSeed, getProduct } from "@/lib/data";
+import { isAdminActor } from "@/lib/admin-auth";
 
 let schemaReady: Promise<void> | null = null;
 
@@ -92,6 +93,7 @@ export async function readCart(db: D1Database, customerKey: string) {
 
 export function assertAdmin(request: Request) {
   const actor = request.headers.get("oai-authenticated-user-id");
-  if (!actor && process.env.NODE_ENV === "production") throw new Response("Unauthorized", { status: 401 });
+  if (!actor && (process.env.NODE_ENV === "production" || process.env.DESHIJAAT_ADMIN_USER_IDS)) throw new Response("Unauthorized", { status: 401 });
+  if (actor && !isAdminActor(actor)) throw new Response("Forbidden", { status: 403 });
   return actor || "local-development-owner";
 }

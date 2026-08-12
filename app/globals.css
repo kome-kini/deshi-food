@@ -855,7 +855,7 @@ img, video { display: block; max-width: 100%; }
   .section-shell { width: min(100% - 34px, 700px); }
   .site-header { grid-template-columns: 1fr auto; height: 65px; padding: 0 18px; }
   .desktop-nav { display: none; }
-  .header-actions .icon-button:nth-of-type(2) { display: none; }
+  .header-actions .account-link { display: none; }
   .menu-button { display: grid; }
   .mobile-panel { position: fixed; inset: 95px 0 auto; z-index: 105; display: grid; padding: 18px; background: var(--paper); box-shadow: 0 20px 40px rgba(16,45,34,.14); opacity: 0; visibility: hidden; transform: translateY(-10px); transition: .25s; }
   .mobile-panel.open { opacity: 1; visibility: visible; transform: none; }

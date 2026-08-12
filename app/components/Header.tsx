@@ -1,10 +1,10 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Menu, Search, ShoppingBag, UserRound, X } from "lucide-react";
 import { useCart } from "./CartProvider";
+import Link from "./SafeLink";
 
 const nav = [
   ["/catalog", "বাজার"],
@@ -18,15 +18,12 @@ export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const router = useRouter();
   const pathname = usePathname();
 
   const submitSearch = (event: React.FormEvent) => {
     event.preventDefault();
     if (!query.trim()) return;
-    router.push(`/catalog?q=${encodeURIComponent(query.trim())}`);
-    setSearchOpen(false);
-    setMenuOpen(false);
+    window.location.assign(`/catalog?q=${encodeURIComponent(query.trim())}`);
   };
 
   return (
@@ -47,7 +44,7 @@ export function Header() {
         </nav>
         <div className="header-actions">
           <button className="icon-button" onClick={() => setSearchOpen(true)} aria-label="Search products"><Search size={19} /></button>
-          <Link className="icon-button" href="/account" aria-label="Customer account"><UserRound size={19} /></Link>
+          <Link className="icon-button account-link" href="/account" aria-label="Customer account"><UserRound size={19} /></Link>
           <Link className="cart-link" href="/cart" aria-label={`Cart with ${count} items`}>
             <ShoppingBag size={19} /><span>কার্ট</span>{count > 0 && <b>{count}</b>}
           </Link>

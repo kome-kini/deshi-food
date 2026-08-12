@@ -3,6 +3,21 @@ import { ensureRuntimeSchema, getD1, getOpenCart, readCart, requestIdentity, wit
 function safeText(value: unknown, max = 160) { return typeof value === "string" ? value.trim().slice(0, max) : ""; }
 function maskMobile(value: string) { return value.length >= 5 ? `${value.slice(0, 2)}•••••••${value.slice(-2)}` : "•••••••••••"; }
 
+export async function GET(request: Request) {
+  const identity = requestIdentity(request);
+  try {
+    const db = getD1(); await ensureRuntimeSchema(db);
+    const result = await db.prepare("SELECT tracking_code, status, total_paisa, created_at FROM orders WHERE customer_key = ? ORDER BY created_at DESC LIMIT 20").bind(identity.customerKey).all<{ tracking_code: string; status: string; total_paisa: number; created_at: string }>();
+    const orders = (result.results as { tracking_code: string; status: string; total_paisa: number; created_at: string }[]).map((order) => ({
+      trackingCode: order.tracking_code,
+      status: order.status === "in_transit" ? "In transit" : order.status[0].toUpperCase() + order.status.slice(1).replaceAll("_", " "),
+      total: order.total_paisa / 100,
+      placedAt: new Intl.DateTimeFormat("bn-BD", { dateStyle: "medium", timeZone: "Asia/Dhaka" }).format(new Date(order.created_at)),
+    }));
+    return withIdentityCookie({ orders, synthetic: true }, identity);
+  } catch { return withIdentityCookie({ error: "Orders unavailable" }, identity, 500); }
+}
+
 export async function POST(request: Request) {
   const identity = requestIdentity(request);
   try {

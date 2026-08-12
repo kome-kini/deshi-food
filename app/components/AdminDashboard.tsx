@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "./SafeLink";
 import { useEffect, useState } from "react";
 import {
   Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Legend, Line, Pie, PieChart,
@@ -28,13 +28,39 @@ export function AdminDashboard({ user }: { user: { name?: string | null; email?:
   const [data, setData] = useState<Analytics>(analyticsSeed);
   const [source, setSource] = useState("Seed preview");
   const [sideOpen, setSideOpen] = useState(false);
+  const [notice, setNotice] = useState("");
 
-  useEffect(() => {
+  const loadAnalytics = () => {
+    setNotice("Analytics refresh হচ্ছে…");
     fetch("/api/admin/analytics/overview", { cache: "no-store" })
       .then(async (response) => response.ok ? await response.json() as { analytics?: Analytics; source?: string } : Promise.reject(new Error("analytics unavailable")))
-      .then((payload: { analytics?: Analytics; source?: string }) => { if (payload.analytics) setData(payload.analytics); setSource(payload.source === "d1" ? "Database snapshot" : "Seed preview"); })
-      .catch(() => setSource("Seed preview"));
+      .then((payload: { analytics?: Analytics; source?: string }) => { if (payload.analytics) setData(payload.analytics); setSource(payload.source === "d1" ? "Database snapshot" : "Seed preview"); setNotice("Analytics refreshed"); })
+      .catch(() => { setSource("Seed preview"); setNotice("Database snapshot unavailable; seed preview shown"); });
+  };
+
+  useEffect(() => {
+    let activeRequest = true;
+    fetch("/api/admin/analytics/overview", { cache: "no-store" })
+      .then(async (response) => response.ok ? await response.json() as { analytics?: Analytics; source?: string } : Promise.reject(new Error("analytics unavailable")))
+      .then((payload) => { if (!activeRequest) return; if (payload.analytics) setData(payload.analytics); setSource(payload.source === "d1" ? "Database snapshot" : "Seed preview"); })
+      .catch(() => { if (activeRequest) setSource("Seed preview"); });
+    return () => { activeRequest = false; };
   }, []);
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      const requested = window.location.hash.slice(1) as AdminSection;
+      if (navigation.some((entry) => entry.key === requested)) setActive(requested);
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
+
+  const selectSection = (key: AdminSection) => {
+    setActive(key);
+    setSideOpen(false);
+    window.history.replaceState(null, "", key === "overview" ? "/admin" : `/admin#${key}`);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   const item = navigation.find((entry) => entry.key === active)!;
   return (
@@ -42,15 +68,16 @@ export function AdminDashboard({ user }: { user: { name?: string | null; email?:
       <aside className={`admin-sidebar ${sideOpen ? "open" : ""}`}>
         <div className="admin-brand"><span className="brand-mark">দ</span><div><strong>DESHIJAAT</strong><small>CONTROL ROOM</small></div><button onClick={() => setSideOpen(false)}><X /></button></div>
         <div className="admin-workspace"><span>DJ</span><div><strong>DESHIJAAT Commerce</strong><small>Synthetic workspace</small></div><ChevronDown /></div>
-        <nav>{navigation.map(({ key, label, hint, icon: Icon }) => <button key={key} className={active === key ? "active" : ""} onClick={() => { setActive(key); setSideOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }}><Icon /><span><strong>{label}</strong><small>{hint}</small></span>{key === "recommendations" && <b>4</b>}</button>)}</nav>
+        <nav>{navigation.map(({ key, label, hint, icon: Icon }) => <button key={key} className={active === key ? "active" : ""} onClick={() => selectSection(key)}><Icon /><span><strong>{label}</strong><small>{hint}</small></span>{key === "recommendations" && <b>4</b>}</button>)}</nav>
         <div className="admin-side-foot"><Link href="/"><ArrowLeft /> Storefront</Link><p><ShieldCheck />Owner-only private preview</p></div>
       </aside>
       <section className="admin-main">
-        <header className="admin-topbar"><button className="admin-menu" onClick={() => setSideOpen(true)}><Menu /></button><div className="admin-search"><Search /><input placeholder="Search metrics, products, orders…" /></div><div className="admin-top-actions"><button><Download /> <span>Export</span></button><button><Settings2 /></button><span className="admin-avatar">{(user?.name || user?.email || "DA").slice(0, 2).toUpperCase()}</span></div></header>
-        <div className="admin-content">
-          <div className="admin-page-head"><div><span>{item.label}</span><h1>{pageTitle(active)}</h1><p>{pageSubtitle(active)}</p></div><div className="admin-head-actions"><div className="data-source"><i />{source}</div><button><Clock3 /> {data.meta.range}<ChevronDown /></button><button className="refresh-button" aria-label="Refresh"><RefreshCw /></button></div></div>
+        <header className="admin-topbar"><button className="admin-menu" onClick={() => setSideOpen(true)}><Menu /></button><div className="admin-search"><Search /><input placeholder="Search metrics, products, orders…" onKeyDown={(event) => { if (event.key === "Enter") setNotice(`Search preview: ${(event.target as HTMLInputElement).value || "সব metrics"}`); }} /></div><div className="admin-top-actions"><button onClick={() => downloadAnalytics(data)}><Download /> <span>Export</span></button><button aria-label="Open methodology" onClick={() => selectSection("methodology")}><Settings2 /></button><span className="admin-avatar">{(user?.name || user?.email || "DA").slice(0, 2).toUpperCase()}</span></div></header>
+        <div className="admin-content" id={active}>
+          <div className="admin-page-head"><div><span>{item.label}</span><h1>{pageTitle(active)}</h1><p>{pageSubtitle(active)}</p></div><div className="admin-head-actions"><div className="data-source"><i />{source}</div><button onClick={() => setNotice("Date range: synthetic 30-day snapshot")}><Clock3 /> {data.meta.range}<ChevronDown /></button><button className="refresh-button" aria-label="Refresh" onClick={loadAnalytics}><RefreshCw /></button></div></div>
+          <p className="sr-only" role="status">{notice}</p>
           <div className="synthetic-banner"><Beaker /><div><strong>Synthetic analytics demo</strong><p>এই dashboard-এর সব value illustrative; live DESHIJAAT performance নয়। BDT • Asia/Dhaka • Last refresh {data.meta.freshness}</p></div></div>
-          {active === "overview" && <Overview data={data} setActive={setActive} />}
+          {active === "overview" && <Overview data={data} setActive={selectSection} />}
           {active === "products" && <ProductsInventory data={data} />}
           {active === "sales" && <SalesProfitability data={data} />}
           {active === "customers" && <Customers data={data} />}
@@ -136,8 +163,14 @@ function Experiments() {
 
 function Recommendations({ data }: { data: Analytics }) {
   const [states, setStates] = useState<Record<string, string>>({});
-  const decide = async (id: string, action: "accept" | "dismiss") => { setStates((current) => ({ ...current, [id]: action })); await fetch(`/api/admin/recommendations/${id}/${action}`, { method: "POST" }).catch(() => null); };
-  return <><div className="recommendation-guard"><BrainCircuit /><div><h2>AI-style, not auto-pilot</h2><p>প্রতিটি suggestion explainable inputs, confidence ও expected impact দেখায়। কোনো promotion বা purchase order নিজে থেকে চালু হয় না।</p></div><span>Human approval required</span></div><div className="recommendation-grid">{data.recommendations.map((rec) => <article key={rec.id} className="recommendation-card"><div className="rec-top"><span className={rec.priority === "জরুরি" ? "urgent" : "opportunity"}>{rec.priority}</span><small>{rec.type}</small><b><i style={{ width: `${rec.confidence}%` }}/><span>{rec.confidence}% confidence</span></b></div><h2>{rec.title}</h2><p>{rec.reason}</p><div><small>EXPECTED IMPACT</small><strong>{rec.impact}</strong></div><ul><li><Check />Held, quarantined, expired ও unverified products excluded</li><li><Check />Unsupported “pure / organic / health” claims blocked</li></ul>{states[rec.id] ? <div className="rec-decided"><Check />{states[rec.id] === "accept" ? "Review queue-তে গৃহীত" : "Dismissed with audit event"}</div> : <footer><button onClick={() => void decide(rec.id, "dismiss")}>Dismiss</button><button onClick={() => void decide(rec.id, "accept")}>Review action <ArrowRight /></button></footer>}</article>)}</div></>;
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const decide = async (id: string, action: "accept" | "dismiss") => {
+    setErrors((current) => ({ ...current, [id]: "" }));
+    const response = await fetch(`/api/admin/recommendations/${id}/${action}`, { method: "POST" }).catch(() => null);
+    if (!response?.ok) { setErrors((current) => ({ ...current, [id]: "Action সংরক্ষণ হয়নি—আবার চেষ্টা করুন।" })); return; }
+    setStates((current) => ({ ...current, [id]: action }));
+  };
+  return <><div className="recommendation-guard"><BrainCircuit /><div><h2>AI-style, not auto-pilot</h2><p>প্রতিটি suggestion explainable inputs, confidence ও expected impact দেখায়। কোনো promotion বা purchase order নিজে থেকে চালু হয় না।</p></div><span>Human approval required</span></div><div className="recommendation-grid">{data.recommendations.map((rec) => <article key={rec.id} className="recommendation-card"><div className="rec-top"><span className={rec.priority === "জরুরি" ? "urgent" : "opportunity"}>{rec.priority}</span><small>{rec.type}</small><b><i style={{ width: `${rec.confidence}%` }}/><span>{rec.confidence}% confidence</span></b></div><h2>{rec.title}</h2><p>{rec.reason}</p><div><small>EXPECTED IMPACT</small><strong>{rec.impact}</strong></div><ul><li><Check />Held, quarantined, expired ও unverified products excluded</li><li><Check />Unsupported “pure / organic / health” claims blocked</li></ul>{errors[rec.id] && <p role="alert">{errors[rec.id]}</p>}{states[rec.id] ? <div className="rec-decided"><Check />{states[rec.id] === "accept" ? "Review queue-তে গৃহীত" : "Dismissed with audit event"}</div> : <footer><button onClick={() => void decide(rec.id, "dismiss")}>Dismiss</button><button onClick={() => void decide(rec.id, "accept")}>Review action <ArrowRight /></button></footer>}</article>)}</div></>;
 }
 
 function Methodology({ data }: { data: Analytics }) {
@@ -158,6 +191,19 @@ function Methodology({ data }: { data: Analytics }) {
 
 function ChartCard({ title, subtitle, children, action, onAction }: { title: string; subtitle: string; children: React.ReactNode; action?: string; onAction?: () => void }) {
   return <section className="chart-card"><header><div><h2>{title}</h2><p>{subtitle}</p></div>{action && <button onClick={onAction}>{action}<ArrowRight /></button>}</header>{children}</section>;
+}
+function downloadAnalytics(data: Analytics) {
+  const rows = [
+    ["metric", "value", "change"],
+    ...data.kpis.map((kpi) => [kpi.label, kpi.value, kpi.change]),
+  ];
+  const csv = rows.map((row) => row.map((value) => `"${String(value).replace(/"/g, '""')}"`).join(",")).join("\n");
+  const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = "deshijaat-synthetic-analytics.csv";
+  anchor.click();
+  URL.revokeObjectURL(url);
 }
 function Metric({ label, value, note, change }: { label: string; value: string; note?: string; change?: string }) { return <div className="kpi-card"><span>{label}<small>ⓘ</small></span><strong>{value}</strong>{change && <p className="positive"><ArrowUpRight />{change}</p>}{note && <p className="neutral-note">{note}</p>}</div>; }
 function MoneyTooltip({ active, payload, label }: { active?: boolean; payload?: { name: string; value: number; color?: string }[]; label?: string }) { if (!active || !payload?.length) return null; return <div className="chart-tooltip"><strong>{label}</strong>{payload.map((entry) => <span key={entry.name}><i style={{ background: entry.color }} />{entry.name}: ৳{entry.value.toLocaleString()}</span>)}</div>; }

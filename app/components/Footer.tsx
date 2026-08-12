@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "./SafeLink";
 
 export function Footer() {
   return (
@@ -14,7 +14,7 @@ export function Footer() {
         </div>
         <div>
           <h3>আস্থা</h3>
-          <Link href="/#story">উৎস ও ট্রেস</Link><Link href="/catalog">Pending verification</Link><Link href="/account">সাপোর্ট</Link>
+          <Link href="/#story">উৎস ও ট্রেস</Link><Link href="/catalog">Pending verification</Link><Link href="/account#returns">সাপোর্ট</Link>
         </div>
         <div>
           <h3>ব্যবসা</h3>

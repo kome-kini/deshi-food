@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "./SafeLink";
 import { useEffect, useState } from "react";
 import { Check, MapPin, Package, Search, Truck } from "lucide-react";
 import { formatBDT } from "@/lib/data";
@@ -36,7 +36,7 @@ export function TrackClient({ initialCode = "" }: { initialCode?: string }) {
           <div className="track-card-head"><div><small>ORDER</small><h2>{result.trackingCode}</h2><span>{result.placedAt}</span></div><div><span>{result.status}</span><strong>{formatBDT(result.total)}</strong></div></div>
           <div className="track-summary"><span><MapPin /><small>গন্তব্য</small><strong>{result.destination}</strong></span><span><Truck /><small>Estimated arrival</small><strong>{result.eta}</strong></span><span><Package /><small>পণ্য</small><strong>{result.items.map((item) => `${item.quantity}× ${item.name}`).join(", ")}</strong></span></div>
           <div className="order-timeline">{result.timeline.map((event, index) => <div key={event.label} className={event.complete ? "complete" : ""}><span>{event.complete ? <Check /> : index + 1}</span><div><strong>{event.label}</strong><p>{event.detail}</p></div></div>)}</div>
-          <div className="track-actions"><Link href="/account">আমার অর্ডার</Link><button>সাপোর্ট প্রয়োজন?</button></div>
+          <div className="track-actions"><Link href="/account#orders">আমার অর্ডার</Link><Link href="/account#returns">সাপোর্ট প্রয়োজন?</Link></div>
         </div>}
         {!result && !error && <div className="track-placeholder"><span><Truck /></span><h2>Tracking code লিখুন</h2><p>Order status, delivery timeline ও destination summary এখানে দেখা যাবে।</p></div>}
       </section>

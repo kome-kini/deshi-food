@@ -21,7 +21,7 @@ export function CatalogClient({ initialQuery = "", initialCategory = "", initial
   const filtered = useMemo(() => {
     const normalized = query.trim().toLocaleLowerCase("bn");
     const result = products.filter((product) => {
-      const text = `${product.nameBn} ${product.nameEn} ${product.sku} ${product.category} ${product.region} ${product.district} ${product.batchCode}`.toLocaleLowerCase("bn");
+      const text = `${product.nameBn} ${product.nameEn} ${product.sku} ${product.category} ${product.region} ${product.district} ${product.batchCode} ${product.ingredients} ${product.description} ${product.story}`.toLocaleLowerCase("bn");
       return (!normalized || text.includes(normalized)) && (!category || product.category === category) && (!region || product.region === region) && (!traceOnly || product.provenance === "verified-demo");
     });
     return [...result].sort((a, b) => {
@@ -37,7 +37,7 @@ export function CatalogClient({ initialQuery = "", initialCategory = "", initial
   return (
     <main className="catalog-page">
       <section className="catalog-hero">
-        <div><span className="eyebrow light">THE DESHI MARKET</span><h1>বাংলার pantry,<br /><em>আপনার দরজায়।</em></h1><p>নাম, SKU, অঞ্চল, producer অথবা public batch code দিয়ে খুঁজুন।</p></div>
+        <div><span className="eyebrow light">THE DESHI MARKET</span><h1>বাংলার pantry,<br /><em>আপনার দরজায়।</em></h1><p>নাম, SKU, অঞ্চল, উপাদান, পণ্যের গল্প অথবা public batch code দিয়ে খুঁজুন।</p></div>
         <form className="catalog-search" onSubmit={(event) => event.preventDefault()}><Search /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="কী খুঁজছেন?" aria-label="Search catalog" />{query && <button type="button" onClick={() => setQuery("")} aria-label="Clear search"><X /></button>}</form>
       </section>
       <div className="catalog-layout section-shell">
