@@ -3,14 +3,25 @@
 import Image from "next/image";
 import Link from "./SafeLink";
 import { Heart, Star } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Product } from "@/lib/product-types";
 import { formatBDT } from "@/lib/format";
 import { useCart } from "./CartProvider";
 
 export function ProductCard({ product, priority = false, compact = false }: { product: Product; priority?: boolean; compact?: boolean }) {
   const { add } = useCart();
-  const [saved, setSaved] = useState(() => typeof window !== "undefined" && (JSON.parse(window.localStorage.getItem("deshijaat-wishlist") || "[]") as string[]).includes(product.slug));
+  const [saved, setSaved] = useState(false);
+  useEffect(() => {
+    let nextSaved = false;
+    try {
+      const wishlist = JSON.parse(window.localStorage.getItem("deshijaat-wishlist") || "[]") as string[];
+      nextSaved = wishlist.includes(product.slug);
+    } catch {
+      window.localStorage.removeItem("deshijaat-wishlist");
+    }
+    const frame = window.requestAnimationFrame(() => setSaved(nextSaved));
+    return () => window.cancelAnimationFrame(frame);
+  }, [product.slug]);
   const toggleSaved = () => {
     const current = JSON.parse(window.localStorage.getItem("deshijaat-wishlist") || "[]") as string[];
     const next = saved ? current.filter((slug) => slug !== product.slug) : [...new Set([...current, product.slug])];
