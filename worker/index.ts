@@ -27,6 +27,7 @@ interface ExecutionContext {
 
 const worker = {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+    (globalThis as typeof globalThis & { __DESHIJAAT_D1__?: Env }).__DESHIJAAT_D1__ = env;
     const url = new URL(request.url);
 
     if (url.pathname === "/_vinext/image") {

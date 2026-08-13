@@ -1,10 +1,12 @@
-import { env } from "cloudflare:workers";
 import { isAdminActor } from "@/lib/admin-auth";
 
 let schemaReady: Promise<void> | null = null;
 
 export function getD1(): D1Database {
-  const bindings = env as unknown as { DB?: D1Database };
+  // Cloudflare injects `DB` through the worker runtime. Vercel does not expose
+  // that module, so keep the adapter runtime-neutral and fail clearly when a
+  // legacy D1 route is called without a configured binding.
+  const bindings = (globalThis as typeof globalThis & { __DESHIJAAT_D1__?: { DB?: D1Database } }).__DESHIJAAT_D1__ ?? {};
   if (!bindings.DB) throw new Error("Database binding unavailable");
   return bindings.DB;
 }

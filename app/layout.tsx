@@ -3,6 +3,11 @@ import { Hind_Siliguri, Inter, Noto_Serif_Bengali } from "next/font/google";
 import { headers } from "next/headers";
 import "./globals.css";
 
+// Catalog and account data are request-time data. Keep Vercel from attempting
+// to prerender pages without the production database connection.
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 const hind = Hind_Siliguri({
   variable: "--font-bangla-sans",
   subsets: ["bengali", "latin"],
