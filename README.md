@@ -36,7 +36,10 @@ npm run dev
    npm run db:generate
    ```
 
-   The runnable Sites staging app uses the Cloudflare D1 `DB` binding declared in `.openai/hosting.json`. The production PostgreSQL/Supabase handoff schema and seed are in `prisma/`; apply them with `npx prisma migrate deploy` and `npx prisma db seed` when using the PostgreSQL deployment described in `DEPLOYMENT.md`.
+   The runnable demo uses local catalogue data. For PostgreSQL/Supabase, apply
+   `prisma migrate deploy` and `prisma/hardening.sql` as described in
+   `DEPLOYMENT.md`. Never run `prisma/seed.sql` outside a disposable test
+   database.
 
 4. Run the development server:
 
@@ -54,6 +57,23 @@ npm run dev
    ```
 
 6. Deploy the Cloudflare Sites build using the project workflow in `DEPLOYMENT.md` (or your CI provider's equivalent). Never commit `.env.local` or provider secrets.
+
+## IP3 catalogue photographs
+
+The 30 supplied product photographs live in `public/media/products`; the seven
+category photographs live in `public/media/categories`. Demo catalogue items
+reference their designated image directly.
+
+After PostgreSQL migrations and hardening are applied, import the same 30
+products as unpublished database drafts and attach their primary media records:
+
+```powershell
+psql $env:DIRECT_URL -v ON_ERROR_STOP=1 -f prisma/import-ip3-catalog.sql
+```
+
+The import is idempotent. It does not create prices, variants, inventory,
+verification decisions, provenance claims, or published products. Complete
+those records and approvals in the admin workflow before publishing.
 
 ## Product surfaces
 
